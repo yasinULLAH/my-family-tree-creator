@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasab Navigator - Lineage Navigator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Amiri', serif;
+            background: linear-gradient(to bottom, #f0e6da, #d2b48c);
+            color: #3e2723;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #5d4037;
+            color: #fff;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-family: 'Cinzel', serif;
+            font-size: 2.5em;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            padding: 20px;
+            background-color: rgba(245, 245, 220, 0.7);
+            border-radius: 8px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            padding: 20px;
+            background-color: rgba(245, 245, 220, 0.7);
+            border-radius: 8px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4e342e;
+            border-bottom: 2px solid #d2b48c;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            font-family: 'Cinzel', serif;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #5d4037;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #d2b48c;
+            border-radius: 5px;
+            font-family: 'Amiri', serif;
+            font-size: 1em;
+            background-color: #fff;
+        }
+
+        button {
+            background-color: #795548;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Amiri', serif;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5d4037;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        #familyTreeVisualization {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #d2b48c;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: auto;
+            position: relative;
+        }
+
+        .tree-node {
+            position: absolute;
+            background-color: #ffecb3;
+            border: 1px solid #d2b48c;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .tree-node:hover {
+            transform: scale(1.05);
+        }
+
+        .tree-node strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #4e342e;
+        }
+
+        .tree-node span {
+            font-size: 0.9em;
+            color: #6d4c41;
+        }
+
+        .tree-link {
+            position: absolute;
+            border-left: 1px solid #795548;
+        }
+
+        .person-list {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .person-list li {
+            background-color: #fff;
+            border: 1px solid #d2b48c;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .person-list li:hover {
+            background-color: #fff9c4;
+        }
+
+        .person-list li strong {
+            display: block;
+            color: #4e342e;
+        }
+
+        .person-details {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #d2b48c;
+            border-radius: 8px;
+        }
+
+        .person-details h3 {
+            margin-top: 0;
+            color: #4e342e;
+            border-bottom: 1px solid #d2b48c;
+            padding-bottom: 5px;
+        }
+
+        .person-details p {
+            margin-bottom: 10px;
+            color: #6d4c41;
+        }
+
+        .person-details img {
+            max-width: 150px;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #d2b48c;
+        }
+
+        .event-list {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .event-list li {
+            margin-bottom: 5px;
+            color: #6d4c41;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .date-conversion {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #d2b48c;
+            border-radius: 8px;
+        }
+
+        .date-conversion input {
+            width: calc(50% - 30px);
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .date-conversion button {
+            display: inline-block;
+            width: auto;
+        }
+
+        .date-conversion p {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #4e342e;
+        }
+
+        .backup-restore {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #d2b48c;
+            border-radius: 8px;
+        }
+
+        .backup-restore input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #5d4037;
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+		
+		div#familyTreeVisualization {
+    width: 99% !important;
+}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Nasab Navigator</h1>
+        <p>Your Lineage, Preserved</p>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Add New Person</h2>
+            <div id="addPersonForm">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birthDateGregorian">Birth Date (Gregorian):</label>
+                    <input type="date" id="birthDateGregorian">
+                </div>
+                <div class="form-group">
+                    <label for="birthDateHijri">Birth Date (Hijri):</label>
+                    <input type="text" id="birthDateHijri" placeholder="e.g., 1445-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="deathDateGregorian">Death Date (Gregorian):</label>
+                    <input type="date" id="deathDateGregorian">
+                </div>
+                <div class="form-group">
+                    <label for="deathDateHijri">Death Date (Hijri):</label>
+                    <input type="text" id="deathDateHijri" placeholder="e.g., 1446-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="photo">Photo:</label>
+                    <input type="file" id="photo" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Biographical Notes:</label>
+                    <textarea id="notes" rows="4"></textarea>
+                </div>
+                <button onclick="addPerson()">Add Person</button>
+            </div>
+
+            <h2>People List</h2>
+            <ul id="personList" class="person-list">
+                <!-- People will be listed here -->
+            </ul>
+
+            <h2>Date Conversion</h2>
+            <div class="date-conversion">
+                <div class="form-group">
+                    <label for="gregorianInput">Gregorian Date:</label>
+                    <input type="date" id="gregorianInput">
+                    <button onclick="convertGregorianToHijri()">Convert to Hijri</button>
+                    <p id="hijriOutput"></p>
+                </div>
+                <div class="form-group">
+                    <label for="hijriInput">Hijri Date (YYYY-MM-DD):</label>
+                    <input type="text" id="hijriInput" placeholder="e.g., 1445-01-01">
+                    <button onclick="convertHijriToGregorian()">Convert to Gregorian</button>
+                    <p id="gregorianOutput"></p>
+                </div>
+            </div>
+
+            <h2>Backup & Restore</h2>
+            <div class="backup-restore">
+                <button onclick="backupData()">Backup Data (JSON)</button>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="restoreFile">Restore from JSON:</label>
+                    <input type="file" id="restoreFile" accept=".json">
+                    <button onclick="restoreData()">Restore Data</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="main-content">
+            <h2>Family Tree Visualization</h2>
+            <div id="familyTreeVisualization">
+                <!-- Tree visualization will be rendered here -->
+            </div>
+
+            <h2>Person Details</h2>
+            <div id="personDetails" class="person-details hidden">
+                <h3 id="detailsName"></h3>
+                <img id="detailsPhoto" src="" alt="Person Photo" class="hidden">
+                <p><strong>Gender:</strong> <span id="detailsGender"></span></p>
+                <p><strong>Birth Date (Gregorian):</strong> <span id="detailsBirthGregorian"></span></p>
+                <p><strong>Birth Date (Hijri):</strong> <span id="detailsBirthHijri"></span></p>
+                <p><strong>Death Date (Gregorian):</strong> <span id="detailsDeathGregorian"></span></p>
+                <p><strong>Death Date (Hijri):</strong> <span id="detailsDeathHijri"></span></p>
+                <p><strong>Notes:</strong> <span id="detailsNotes"></span></p>
+
+                <h4>Relationships</h4>
+                <div id="detailsRelationships">
+                    <!-- Relationships will be listed here -->
+                </div>
+
+                <h4>Life Events</h4>
+                <ul id="detailsEvents" class="event-list">
+                    <!-- Events will be listed here -->
+                </ul>
+
+                <h4>Add Relationship</h4>
+                <div class="form-group">
+                    <label for="relationshipType">Relationship Type:</label>
+                    <select id="relationshipType">
+                        <option value="">Select Type</option>
+                        <option value="Parent">Parent</option>
+                        <option value="Child">Child</option>
+                        <option value="Spouse">Spouse</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="relatedPerson">Related Person:</label>
+                    <select id="relatedPerson">
+                        <option value="">Select Person</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <button onclick="addRelationship()">Add Relationship</button>
+
+                <h4>Add Life Event</h4>
+                <div class="form-group">
+                    <label for="eventType">Event Type:</label>
+                    <input type="text" id="eventType" placeholder="e.g., Aqiqah, Hajj">
+                </div>
+                <div class="form-group">
+                    <label for="eventDateGregorian">Event Date (Gregorian):</label>
+                    <input type="date" id="eventDateGregorian">
+                </div>
+                <div class="form-group">
+                    <label for="eventDateHijri">Event Date (Hijri):</label>
+                    <input type="text" id="eventDateHijri" placeholder="e.g., 1445-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="eventNotes">Event Notes:</label>
+                    <textarea id="eventNotes" rows="2"></textarea>
+                </div>
+                <button onclick="addLifeEvent()">Add Event</button>
+
+                <button onclick="deletePerson()" style="background-color: #c62828; margin-top: 20px;">Delete Person</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2023 Nasab Navigator. Developed by Yasin Ullah (Pakistan).
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/date-holidays@3.16.1/lib/date-holidays.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@date-io/hijri@2.16.1/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@date-io/date-fns@2.16.1/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@date-io/core@2.16.1/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@date-io/moment@2.16.1/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@date-io/luxon@2.16.1/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment-hijri@2.1.2/moment-hijri.min.js"></script>
+
+
+    <script>
+        const dbName = 'nasabNavigatorDB';
+        const dbVersion = 1;
+        let db;
+        let currentPersonId = null; // To keep track of the currently viewed person
+
+        // Open or create the IndexedDB database
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+
+                request.onerror = (event) => {
+                    console.error("IndexedDB error:", event.target.errorCode);
+                    reject("Database error");
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('people')) {
+                        const peopleStore = db.createObjectStore('people', { keyPath: 'id', autoIncrement: true });
+                        peopleStore.createIndex('name', 'name', { unique: false });
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log("Database opened successfully");
+                    resolve(db);
+                };
+            });
+        }
+
+        // Add a person to the database
+        async function addPersonToDB(person) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['people'], 'readwrite');
+                const store = transaction.objectStore('people');
+                const request = store.add(person);
+
+                request.onsuccess = (event) => {
+                    console.log("Person added:", event.target.result);
+                    resolve(event.target.result);
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error adding person:", event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // Get all people from the database
+        async function getAllPeople() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['people'], 'readonly');
+                const store = transaction.objectStore('people');
+                const request = store.getAll();
+
+                request.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error getting people:", event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // Get a single person by ID
+        async function getPersonById(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['people'], 'readonly');
+                const store = transaction.objectStore('people');
+                const request = store.get(id);
+
+                request.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error getting person:", event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // Update a person in the database
+        async function updatePersonInDB(person) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['people'], 'readwrite');
+                const store = transaction.objectStore('people');
+                const request = store.put(person);
+
+                request.onsuccess = (event) => {
+                    console.log("Person updated:", event.target.result);
+                    resolve(event.target.result);
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error updating person:", event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // Delete a person from the database
+        async function deletePersonFromDB(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['people'], 'readwrite');
+                const store = transaction.objectStore('people');
+                const request = store.delete(id);
+
+                request.onsuccess = (event) => {
+                    console.log("Person deleted:", id);
+                    resolve();
+                };
+
+                request.onerror = (event) => {
+                    console.error("Error deleting person:", event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // --- UI Functions ---
+
+        async function loadPeopleList() {
+            const people = await getAllPeople();
+            const personListElement = document.getElementById('personList');
+            personListElement.innerHTML = '';
+            const relatedPersonSelect = document.getElementById('relatedPerson');
+            relatedPersonSelect.innerHTML = '<option value="">Select Person</option>';
+
+            people.forEach(person => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${person.name}</strong> (${person.gender})`;
+                li.onclick = () => displayPersonDetails(person.id);
+                personListElement.appendChild(li);
+
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                relatedPersonSelect.appendChild(option);
+            });
+        }
+
+        async function addPerson() {
+            const name = document.getElementById('name').value.trim();
+            const gender = document.getElementById('gender').value;
+            const birthDateGregorian = document.getElementById('birthDateGregorian').value;
+            const birthDateHijri = document.getElementById('birthDateHijri').value.trim();
+            const deathDateGregorian = document.getElementById('deathDateGregorian').value;
+            const deathDateHijri = document.getElementById('deathDateHijri').value.trim();
+            const photoFile = document.getElementById('photo').files[0];
+            const notes = document.getElementById('notes').value.trim();
+
+            if (!name || !gender) {
+                alert("Name and Gender are required.");
+                return;
+            }
+
+            let photoBase64 = null;
+            if (photoFile) {
+                photoBase64 = await readFileAsBase64(photoFile);
+            }
+
+            const newPerson = {
+                name: name,
+                gender: gender,
+                birthDateGregorian: birthDateGregorian,
+                birthDateHijri: birthDateHijri,
+                deathDateGregorian: deathDateGregorian,
+                deathDateHijri: deathDateHijri,
+                photo: photoBase64,
+                notes: notes,
+                relationships: [], // { type: 'Parent', personId: 1 }
+                events: [] // { type: 'Aqiqah', dateGregorian: '2023-01-01', dateHijri: '1444-06-09', notes: '' }
+            };
+
+            try {
+                await addPersonToDB(newPerson);
+                alert("Person added successfully!");
+                clearAddPersonForm();
+                loadPeopleList();
+                renderFamilyTree();
+            } catch (error) {
+                alert("Error adding person: " + error);
+            }
+        }
+
+        function clearAddPersonForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('birthDateGregorian').value = '';
+            document.getElementById('birthDateHijri').value = '';
+            document.getElementById('deathDateGregorian').value = '';
+            document.getElementById('deathDateHijri').value = '';
+            document.getElementById('photo').value = '';
+            document.getElementById('notes').value = '';
+        }
+
+        async function displayPersonDetails(personId) {
+            currentPersonId = personId;
+            const person = await getPersonById(personId);
+            if (!person) {
+                alert("Person not found.");
+                return;
+            }
+
+            document.getElementById('personDetails').classList.remove('hidden');
+            document.getElementById('detailsName').textContent = person.name;
+            document.getElementById('detailsGender').textContent = person.gender;
+            document.getElementById('detailsBirthGregorian').textContent = person.birthDateGregorian || 'N/A';
+            document.getElementById('detailsBirthHijri').textContent = person.birthDateHijri || 'N/A';
+            document.getElementById('detailsDeathGregorian').textContent = person.deathDateGregorian || 'N/A';
+            document.getElementById('detailsDeathHijri').textContent = person.deathDateHijri || 'N/A';
+            document.getElementById('detailsNotes').textContent = person.notes || 'No notes.';
+
+            const photoElement = document.getElementById('detailsPhoto');
+            if (person.photo) {
+                photoElement.src = person.photo;
+                photoElement.classList.remove('hidden');
+            } else {
+                photoElement.classList.add('hidden');
+                photoElement.src = ''; // Clear previous image
+            }
+
+            // Display Relationships
+            const relationshipsDiv = document.getElementById('detailsRelationships');
+            relationshipsDiv.innerHTML = '';
+            if (person.relationships && person.relationships.length > 0) {
+                const ul = document.createElement('ul');
+                for (const rel of person.relationships) {
+                    const relatedPerson = await getPersonById(rel.personId);
+                    if (relatedPerson) {
+                        const li = document.createElement('li');
+                        li.textContent = `${rel.type}: ${relatedPerson.name}`;
+                        ul.appendChild(li);
+                    }
+                }
+                relationshipsDiv.appendChild(ul);
+            } else {
+                relationshipsDiv.textContent = 'No relationships added yet.';
+            }
+
+            // Display Events
+            const eventsList = document.getElementById('detailsEvents');
+            eventsList.innerHTML = '';
+            if (person.events && person.events.length > 0) {
+                person.events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.textContent = `${event.type}: ${event.dateGregorian || 'N/A Gregorian'} / ${event.dateHijri || 'N/A Hijri'}${event.notes ? ' - ' + event.notes : ''}`;
+                    eventsList.appendChild(li);
+                });
+            } else {
+                eventsList.textContent = 'No life events added yet.';
+            }
+
+            // Populate related person dropdown for adding relationships
+            const relatedPersonSelect = document.getElementById('relatedPerson');
+            relatedPersonSelect.value = ''; // Reset dropdown
+        }
+
+        async function addRelationship() {
+            if (currentPersonId === null) {
+                alert("Please select a person first.");
+                return;
+            }
+
+            const relationshipType = document.getElementById('relationshipType').value;
+            const relatedPersonId = parseInt(document.getElementById('relatedPerson').value);
+
+            if (!relationshipType || !relatedPersonId) {
+                alert("Please select relationship type and related person.");
+                return;
+            }
+
+            if (currentPersonId === relatedPersonId) {
+                alert("Cannot add a relationship to the same person.");
+                return;
+            }
+
+            const person = await getPersonById(currentPersonId);
+            const relatedPerson = await getPersonById(relatedPersonId);
+
+            if (!person || !relatedPerson) {
+                alert("Error fetching person data.");
+                return;
+            }
+
+            // Check if relationship already exists
+            const existingRelationship = person.relationships.find(rel => rel.personId === relatedPersonId && rel.type === relationshipType);
+            if (existingRelationship) {
+                alert("This relationship already exists.");
+                return;
+            }
+
+            // Add relationship to the current person
+            person.relationships.push({ type: relationshipType, personId: relatedPersonId });
+
+            // Add reciprocal relationship to the related person (basic logic)
+            let reciprocalType = '';
+            if (relationshipType === 'Parent') {
+                reciprocalType = 'Child';
+            } else if (relationshipType === 'Child') {
+                reciprocalType = 'Parent';
+            } else if (relationshipType === 'Spouse') {
+                reciprocalType = 'Spouse'; // Spousal is reciprocal
+            }
+
+            if (reciprocalType) {
+                 const existingReciprocal = relatedPerson.relationships.find(rel => rel.personId === currentPersonId && rel.type === reciprocalType);
+                 if (!existingReciprocal) {
+                     relatedPerson.relationships.push({ type: reciprocalType, personId: currentPersonId });
+                     await updatePersonInDB(relatedPerson); // Save the related person
+                 }
+            }
+
+
+            try {
+                await updatePersonInDB(person);
+                alert("Relationship added successfully!");
+                displayPersonDetails(currentPersonId); // Refresh details
+                renderFamilyTree(); // Update tree visualization
+            } catch (error) {
+                alert("Error adding relationship: " + error);
+            }
+        }
+
+        async function addLifeEvent() {
+             if (currentPersonId === null) {
+                alert("Please select a person first.");
+                return;
+            }
+
+            const eventType = document.getElementById('eventType').value.trim();
+            const eventDateGregorian = document.getElementById('eventDateGregorian').value;
+            const eventDateHijri = document.getElementById('eventDateHijri').value.trim();
+            const eventNotes = document.getElementById('eventNotes').value.trim();
+
+            if (!eventType || (!eventDateGregorian && !eventDateHijri)) {
+                alert("Event Type and at least one date are required.");
+                return;
+            }
+
+            const person = await getPersonById(currentPersonId);
+            if (!person) {
+                alert("Error fetching person data.");
+                return;
+            }
+
+            const newEvent = {
+                type: eventType,
+                dateGregorian: eventDateGregorian,
+                dateHijri: eventDateHijri,
+                notes: eventNotes
+            };
+
+            if (!person.events) {
+                person.events = [];
+            }
+            person.events.push(newEvent);
+
+            try {
+                await updatePersonInDB(person);
+                alert("Life event added successfully!");
+                document.getElementById('eventType').value = '';
+                document.getElementById('eventDateGregorian').value = '';
+                document.getElementById('eventDateHijri').value = '';
+                document.getElementById('eventNotes').value = '';
+                displayPersonDetails(currentPersonId); // Refresh details
+            } catch (error) {
+                alert("Error adding life event: " + error);
+            }
+        }
+
+        async function deletePerson() {
+            if (currentPersonId === null) {
+                alert("Please select a person to delete.");
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete ${document.getElementById('detailsName').textContent}? This action cannot be undone.`)) {
+                try {
+                    // Remove relationships involving this person from other people
+                    const allPeople = await getAllPeople();
+                    for (const person of allPeople) {
+                        if (person.relationships && person.relationships.length > 0) {
+                            const initialLength = person.relationships.length;
+                            person.relationships = person.relationships.filter(rel => rel.personId !== currentPersonId);
+                            if (person.relationships.length < initialLength) {
+                                await updatePersonInDB(person); // Save if relationships were removed
+                            }
+                        }
+                    }
+
+                    await deletePersonFromDB(currentPersonId);
+                    alert("Person deleted successfully.");
+                    currentPersonId = null;
+                    document.getElementById('personDetails').classList.add('hidden');
+                    loadPeopleList();
+                    renderFamilyTree();
+                } catch (error) {
+                    alert("Error deleting person: " + error);
+                }
+            }
+        }
+
+
+        // --- Date Conversion Functions ---
+        // Using moment-hijri for date conversions
+
+        function convertGregorianToHijri() {
+            const gregorianDate = document.getElementById('gregorianInput').value;
+            if (!gregorianDate) {
+                document.getElementById('hijriOutput').textContent = "Please enter a Gregorian date.";
+                return;
+            }
+            try {
+                const hijriDate = moment(gregorianDate, 'YYYY-MM-DD').format('iYYYY-iMM-iDD');
+                document.getElementById('hijriOutput').textContent = `Hijri: ${hijriDate}`;
+            } catch (e) {
+                 document.getElementById('hijriOutput').textContent = "Invalid Gregorian date format.";
+            }
+        }
+
+        function convertHijriToGregorian() {
+            const hijriDate = document.getElementById('hijriInput').value;
+             if (!hijriDate) {
+                document.getElementById('gregorianOutput').textContent = "Please enter a Hijri date.";
+                return;
+            }
+            try {
+                const gregorianDate = moment(hijriDate, 'iYYYY-iMM-iDD').format('YYYY-MM-DD');
+                document.getElementById('gregorianOutput').textContent = `Gregorian: ${gregorianDate}`;
+            } catch (e) {
+                 document.getElementById('gregorianOutput').textContent = "Invalid Hijri date format (use YYYY-MM-DD).";
+            }
+        }
+
+        // --- Family Tree Visualization (Basic) ---
+        async function renderFamilyTree() {
+            const people = await getAllPeople();
+            const treeContainer = document.getElementById('familyTreeVisualization');
+            treeContainer.innerHTML = ''; // Clear previous visualization
+
+            if (people.length === 0) {
+                treeContainer.textContent = "Add some people to see the family tree.";
+                return;
+            }
+
+            // Simple hierarchical layout (can be improved)
+            // This is a very basic visualization. For complex trees, a library like D3.js or GoJS would be better.
+            // We'll attempt a simple parent-child layout.
+
+            const nodes = {};
+            const rootPeople = []; // People with no 'Child' relationship pointing to them
+
+            // Create nodes and identify potential roots
+            people.forEach(person => {
+                nodes[person.id] = {
+                    id: person.id,
+                    name: person.name,
+                    gender: person.gender,
+                    parents: [],
+                    children: [],
+                    spouses: [],
+                    element: null, // To store the DOM element
+                    x: 0, y: 0 // Position for visualization
+                };
+                let isChild = false;
+                if (person.relationships) {
+                    person.relationships.forEach(rel => {
+                        if (rel.type === 'Child') {
+                            isChild = true;
+                        }
+                    });
+                }
+                 if (!isChild) {
+                    rootPeople.push(person.id);
+                }
+            });
+
+             // Build relationships in the nodes structure
+            people.forEach(person => {
+                 if (person.relationships) {
+                    person.relationships.forEach(rel => {
+                        if (nodes[person.id] && nodes[rel.personId]) {
+                            if (rel.type === 'Parent') {
+                                nodes[person.id].parents.push(rel.personId);
+                                nodes[rel.personId].children.push(person.id); // Add reciprocal
+                            } else if (rel.type === 'Child') {
+                                nodes[person.id].children.push(rel.personId);
+                                nodes[rel.personId].parents.push(person.id); // Add reciprocal
+                            } else if (rel.type === 'Spouse') {
+                                nodes[person.id].spouses.push(rel.personId);
+                                nodes[rel.personId].spouses.push(person.id); // Add reciprocal
+                            }
+                        }
+                    });
+                 }
+            });
+
+             // Remove duplicates in relationships
+            Object.values(nodes).forEach(node => {
+                node.parents = [...new Set(node.parents)];
+                node.children = [...new Set(node.children)];
+                node.spouses = [...new Set(node.spouses)];
+            });
+
+
+            // Simple positioning algorithm (breadth-first-like)
+            const visited = new Set();
+            const queue = [];
+            const nodeWidth = 150;
+            const nodeHeight = 80;
+            const hSpacing = 50;
+            const vSpacing = 80;
+            let currentY = 20;
+            const levels = {}; // To store nodes by level
+
+            // Start with identified roots
+            rootPeople.forEach(rootId => {
+                 if (!visited.has(rootId)) {
+                    queue.push({ id: rootId, level: 0 });
+                    visited.add(rootId);
+                    if (!levels[0]) levels[0] = [];
+                    levels[0].push(rootId);
+                 }
+            });
+
+             let head = 0;
+             while(head < queue.length) {
+                const { id, level } = queue[head++];
+                const personNode = nodes[id];
+
+                // Add children to the queue
+                personNode.children.forEach(childId => {
+                    if (!visited.has(childId)) {
+                        visited.add(childId);
+                        queue.push({ id: childId, level: level + 1 });
+                        if (!levels[level + 1]) levels[level + 1] = [];
+                        levels[level + 1].push(childId);
+                    }
+                });
+
+                 // Add spouses to the queue (at the same level)
+                 personNode.spouses.forEach(spouseId => {
+                     if (!visited.has(spouseId)) {
+                         visited.add(spouseId);
+                         queue.push({ id: spouseId, level: level }); // Spouses at same level
+                         if (!levels[level]) levels[level] = [];
+                         levels[level].push(spouseId);
+                     }
+                 });
+            }
+
+            // Position nodes level by level
+            let maxLevelWidth = 0;
+            Object.keys(levels).sort((a, b) => a - b).forEach(level => {
+                const levelNodes = levels[level];
+                const levelWidth = levelNodes.length * (nodeWidth + hSpacing);
+                maxLevelWidth = Math.max(maxLevelWidth, levelWidth);
+                let currentX = (treeContainer.clientWidth - levelWidth) / 2; // Center the level
+
+                levelNodes.forEach(nodeId => {
+                    const node = nodes[nodeId];
+                    node.x = currentX;
+                    node.y = currentY;
+                    currentX += nodeWidth + hSpacing;
+                });
+                currentY += nodeHeight + vSpacing;
+            });
+
+
+            // Render nodes
+            Object.values(nodes).forEach(node => {
+                const nodeElement = document.createElement('div');
+                nodeElement.classList.add('tree-node');
+                nodeElement.style.left = `${node.x}px`;
+                nodeElement.style.top = `${node.y}px`;
+                nodeElement.style.width = `${nodeWidth}px`;
+                nodeElement.innerHTML = `<strong>${node.name}</strong><span>${node.gender}</span>`;
+                nodeElement.onclick = () => displayPersonDetails(node.id);
+                treeContainer.appendChild(nodeElement);
+                node.element = nodeElement; // Store element reference
+            });
+
+            // Render links (simplified)
+            Object.values(nodes).forEach(node => {
+                // Links to children
+                node.children.forEach(childId => {
+                    const childNode = nodes[childId];
+                    if (childNode && node.element && childNode.element) {
+                        const link = document.createElement('div');
+                        link.classList.add('tree-link');
+                        const startX = node.x + nodeWidth / 2;
+                        const startY = node.y + nodeHeight;
+                        const endX = childNode.x + nodeWidth / 2;
+                        const endY = childNode.y;
+
+                        // Draw a vertical line down from parent, then a horizontal line, then a vertical line up to child
+                        const midY = startY + vSpacing / 2;
+
+                        // Vertical line down from parent
+                        const vLine1 = document.createElement('div');
+                        vLine1.classList.add('tree-link');
+                        vLine1.style.left = `${startX}px`;
+                        vLine1.style.top = `${startY}px`;
+                        vLine1.style.height = `${midY - startY}px`;
+                        vLine1.style.width = '1px';
+                        treeContainer.appendChild(vLine1);
+
+                        // Horizontal line
+                         const hLine = document.createElement('div');
+                         hLine.classList.add('tree-link');
+                         hLine.style.left = `${Math.min(startX, endX)}px`;
+                         hLine.style.top = `${midY}px`;
+                         hLine.style.width = `${Math.abs(startX - endX) + 1}px`;
+                         hLine.style.height = '1px';
+                         treeContainer.appendChild(hLine);
+
+                        // Vertical line up to child
+                         const vLine2 = document.createElement('div');
+                         vLine2.classList.add('tree-link');
+                         vLine2.style.left = `${endX}px`;
+                         vLine2.style.top = `${midY}px`;
+                         vLine2.style.height = `${endY - midY}px`;
+                         vLine2.style.width = '1px';
+                         treeContainer.appendChild(vLine2);
+                    }
+                });
+
+                 // Links to spouses (horizontal line)
+                 node.spouses.forEach(spouseId => {
+                     const spouseNode = nodes[spouseId];
+                     if (spouseNode && node.element && spouseNode.element && node.id < spouseId) { // Draw link only once per couple
+                         const link = document.createElement('div');
+                         link.classList.add('tree-link');
+                         link.style.left = `${Math.min(node.x + nodeWidth, spouseNode.x)}px`;
+                         link.style.top = `${node.y + nodeHeight / 2}px`;
+                         link.style.width = `${Math.abs((node.x + nodeWidth) - spouseNode.x)}px`;
+                         link.style.height = '1px';
+                         treeContainer.appendChild(link);
+                     }
+                 });
+            });
+
+             // Adjust container height
+             treeContainer.style.height = `${currentY + nodeHeight}px`;
+             treeContainer.style.width = `${maxLevelWidth + hSpacing}px`; // Adjust width based on widest level
+        }
+
+
+        // --- Backup and Restore ---
+
+        async function backupData() {
+            try {
+                const allPeople = await getAllPeople();
+                const data = JSON.stringify(allPeople, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'nasab_navigator_backup.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert("Backup created successfully!");
+            } catch (error) {
+                console.error("Backup failed:", error);
+                alert("Backup failed. See console for details.");
+            }
+        }
+
+        async function restoreData() {
+            const fileInput = document.getElementById('restoreFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a backup file.");
+                return;
+            }
+
+            if (!confirm("Restoring will overwrite all existing data. Are you sure?")) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+
+                    // Clear existing data
+                    const transaction = db.transaction(['people'], 'readwrite');
+                    const store = transaction.objectStore('people');
+                    await new Promise((resolve, reject) => {
+                        const clearRequest = store.clear();
+                        clearRequest.onsuccess = () => resolve();
+                        clearRequest.onerror = (e) => reject(e);
+                    });
+
+                    // Add restored data
+                    for (const person of data) {
+                        // Remove the old ID to let IndexedDB assign a new one
+                        delete person.id;
+                        await addPersonToDB(person);
+                    }
+
+                    alert("Data restored successfully!");
+                    fileInput.value = ''; // Clear the file input
+                    loadPeopleList();
+                    renderFamilyTree();
+                    document.getElementById('personDetails').classList.add('hidden'); // Hide details section
+                    currentPersonId = null;
+
+                } catch (error) {
+                    console.error("Restore failed:", error);
+                    alert("Restore failed. Invalid file format or data. See console for details.");
+                }
+            };
+            reader.onerror = (event) => {
+                console.error("File reading error:", event.target.error);
+                alert("Error reading file.");
+            };
+            reader.readAsText(file);
+        }
+
+
+        // --- Utility Functions ---
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- Initialization ---
+
+        window.onload = async () => {
+            try {
+                await openDB();
+                loadPeopleList();
+                renderFamilyTree();
+            } catch (error) {
+                alert("Failed to initialize database: " + error);
+            }
+        };
+
+    </script>
+
+</body>
+</html>
